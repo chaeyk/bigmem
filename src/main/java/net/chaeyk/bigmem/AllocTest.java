@@ -2,6 +2,7 @@ package net.chaeyk.bigmem;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,16 +28,17 @@ public class AllocTest extends Thread {
         @Override
         public void run() {
             for (int i = 0; i < objects.size(); i++) {
-                byte[] mem = new byte[size];
-                objects.set(i, mem);
+                ByteBuffer buf = ByteBuffer.allocateDirect(size);
+                objects.set(i, buf);
                 for (int j = 0; j < size; j++) {
-                    mem[j] = 1;
+                    buf.put((byte) 1);
                 }
+                buf.flip();
             }
             for (int i = 0; i < objects.size(); i++) {
-                byte[] mem = (byte[]) objects.get(i);
+                ByteBuffer buf = (ByteBuffer) objects.get(i);
                 for (int j = 0; j < size; j++) {
-                    if (mem[j] != 1) {
+                    if (buf.get() != 1) {
                         throw new RuntimeException("Oh...");
                     }
                 }
